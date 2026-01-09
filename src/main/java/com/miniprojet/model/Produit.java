@@ -5,6 +5,7 @@ public class Produit implements Cloneable {
     private String name;
     private String description;
     private double price;
+    private Stock stock; // 👈 association
 
     private Produit(Builder b) {
         this.id = b.id;
@@ -48,6 +49,14 @@ public class Produit implements Cloneable {
         this.price = price;
     }
 
+    public Stock getStock() {
+        return stock;
+    }
+
+    public void setStock(Stock stock) {
+        this.stock = stock;
+    }
+
     @Override
     public String toString() {
         return "Produit{" +
@@ -63,6 +72,7 @@ public class Produit implements Cloneable {
         private String name;
         private String description;
         private double price;
+        private Stock stock;
 
         public Builder() {
         }
@@ -84,6 +94,11 @@ public class Produit implements Cloneable {
 
         public Builder price(double price) {
             this.price = price;
+            return this;
+        }
+
+        public Builder stock(Stock stock) {
+            this.stock = stock;
             return this;
         }
 
