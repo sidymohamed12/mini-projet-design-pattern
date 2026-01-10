@@ -5,7 +5,7 @@ public class Produit implements Cloneable {
     private String name;
     private String description;
     private double price;
-    private Stock stock; // 👈 association
+    private Stock stock;
 
     private Produit(Builder b) {
         this.id = b.id;

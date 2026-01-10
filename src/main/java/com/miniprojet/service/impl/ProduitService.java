@@ -6,10 +6,10 @@ import java.util.Optional;
 import com.miniprojet.exception.ProductNotFoundException;
 import com.miniprojet.model.Produit;
 import com.miniprojet.repository.impl.ProduitRepository;
-import com.miniprojet.service.IService;
+import com.miniprojet.service.IProduitService;
 
-public class ProduitService implements IService<Produit> {
-    private final ProduitRepository repo = ProduitRepository.getInstance(); // Singleton repo
+public class ProduitService implements IProduitService {
+    private final ProduitRepository repo = ProduitRepository.getInstance();
 
     public ProduitService() {
 
