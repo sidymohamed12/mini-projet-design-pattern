@@ -1,27 +1,39 @@
 package com.miniprojet.factory;
 
+import com.miniprojet.repository.IRepository;
+import com.miniprojet.service.impl.ClientService;
+import com.miniprojet.service.impl.CommandeService;
 import com.miniprojet.service.impl.ProduitService;
 import com.miniprojet.service.impl.StockService;
 
 /**
- * Factory Method simple pour créer des services.
- * Facile à étendre si vous ajoutez d'autres controllers.
+ * Factory Method Pattern - Crée des services avec injection de dépendances
+ * Les repositories sont injectés dans les services
  */
 public final class ServiceFactory {
 
     private ServiceFactory() {
     }
 
-    public static <T> T createService(Class<T> clazz) {
+    /**
+     * Crée un service en injectant le repository requis
+     */
+    public static ProduitService createProduitService(IRepository produitRepo) {
+        return new ProduitService(produitRepo);
+    }
 
-        if (clazz.equals(ProduitService.class)) {
-            return (T) new ProduitService();
-        }
+    public static ClientService createClientService(IRepository clientRepo) {
+        return new ClientService(clientRepo);
+    }
 
-        if (clazz.equals(StockService.class)) {
-            return (T) new StockService();
-        }
+    public static CommandeService createCommandeService(
+            IRepository commandeRepo,
+            IRepository produitRepo,
+            StockService stockService) {
+        return new CommandeService(commandeRepo, produitRepo, stockService);
+    }
 
-        throw new IllegalArgumentException("Unknown service type: " + clazz.getSimpleName());
+    public static StockService createStockService() {
+        return new StockService();
     }
 }
