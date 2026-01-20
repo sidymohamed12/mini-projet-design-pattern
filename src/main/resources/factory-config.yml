@@ -1,0 +1,38 @@
+repositories:
+  IProduitRepository:
+    class: com.miniprojet.repository.impl.ProduitRepository
+    singleton: true
+
+  IClientRepository:
+    class: com.miniprojet.repository.impl.ClientRepository
+    singleton: true
+
+  ICommandeRepository:
+    class: com.miniprojet.repository.impl.CommandeRepository
+    singleton: true
+
+services:
+  IStockService:
+    class: com.miniprojet.service.impl.StockService
+    singleton: true
+    args: []
+
+  IProduitService:
+    class: com.miniprojet.service.impl.ProduitService
+    singleton: true
+    args:
+      - IProduitRepository
+
+  IClientService:
+    class: com.miniprojet.service.impl.ClientService
+    singleton: true
+    args:
+      - IClientRepository
+
+  ICommandeService:
+    class: com.miniprojet.service.impl.CommandeService
+    singleton: true
+    args:
+      - ICommandeRepository
+      - IProduitRepository
+      - IStockService

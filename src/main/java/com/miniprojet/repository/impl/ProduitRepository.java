@@ -4,22 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import com.miniprojet.database.Database;
 import com.miniprojet.model.Produit;
-import com.miniprojet.repository.IRepository;
+import com.miniprojet.repository.IProduitRepository;
 
 /**
  * Singleton Pattern - Repository pour les produits
  * Utilise maintenant la Database singleton
  */
-public class ProduitRepository implements IRepository<Produit> {
+public class ProduitRepository implements IProduitRepository {
 
     private static final ProduitRepository INSTANCE = new ProduitRepository();
-    private final Database database;
-
-    private ProduitRepository() {
-        this.database = Database.getInstance();
-    }
+    private final List<Produit> listProduits = new ArrayList<>();
 
     public static ProduitRepository getInstance() {
         return INSTANCE;
@@ -27,28 +22,28 @@ public class ProduitRepository implements IRepository<Produit> {
 
     @Override
     public List<Produit> findAll() {
-        return new ArrayList<>(database.getProduits());
+        return listProduits;
     }
 
     @Override
     public Optional<Produit> findById(Integer id) {
-        return database.getProduits().stream()
+        return listProduits.stream()
                 .filter(p -> p.getId() == id)
                 .findFirst();
     }
 
     @Override
     public Produit save(Produit produit) {
-        int id = database.getProduits().isEmpty() ? 1
-                : database.getProduits().get(database.getProduits().size() - 1).getId() + 1;
+        int id = listProduits.isEmpty() ? 1
+                : listProduits.get(listProduits.size() - 1).getId() + 1;
         produit.setId(id);
-        database.getProduits().add(produit);
+        listProduits.add(produit);
         return produit;
     }
 
     @Override
     public void update(Produit produit) {
-        List<Produit> produits = database.getProduits();
+        List<Produit> produits = listProduits;
         for (int i = 0; i < produits.size(); i++) {
             if (produits.get(i).getId() == produit.getId()) {
                 produits.set(i, produit);
@@ -60,6 +55,6 @@ public class ProduitRepository implements IRepository<Produit> {
 
     @Override
     public boolean delete(Integer id) {
-        return database.getProduits().removeIf(p -> p.getId() == id);
+        return listProduits.removeIf(p -> p.getId() == id);
     }
 }

@@ -1,15 +1,6 @@
 package com.miniprojet;
 
-import com.miniprojet.database.Database;
-import com.miniprojet.factory.RepositoryFactory;
-import com.miniprojet.factory.ServiceFactory;
-import com.miniprojet.model.Client;
-import com.miniprojet.model.Commande;
-import com.miniprojet.model.Produit;
-import com.miniprojet.repository.IRepository;
-import com.miniprojet.repository.impl.ClientRepository;
-import com.miniprojet.repository.impl.CommandeRepository;
-import com.miniprojet.repository.impl.ProduitRepository;
+import com.miniprojet.factory.ReflectionFactory;
 import com.miniprojet.service.impl.ClientService;
 import com.miniprojet.service.impl.CommandeService;
 import com.miniprojet.service.impl.ProduitService;
@@ -21,17 +12,20 @@ import com.miniprojet.view.ProduitView;
 import java.util.Scanner;
 
 /**
- * Application principale - Système de Gestion Commerciale
+ * Application principale - Système de Gestion Commerciale v3.0
  * 
  * Architecture et Design Patterns:
  * 
  * SINGLETON PATTERN:
  * - Database: instance unique de la base de données en mémoire
- * - ProduitRepository, ClientRepository, CommandeRepository: instances uniques
+ * - Repositories: instances uniques (ProduitRepository, ClientRepository,
+ * CommandeRepository)
+ * - ReflectionFactory: instance unique pour gérer les beans
  * 
- * FACTORY METHOD PATTERN:
- * - RepositoryFactory: crée les repositories Singleton
- * - ServiceFactory: crée les services avec injection de dépendances
+ * FACTORY METHOD PATTERN avec RÉFLEXION:
+ * - ReflectionFactory: création automatique avec détection des dépendances
+ * - Configuration YAML externe
+ * - Cache intelligent des instances (Map-based)
  * 
  * BUILDER PATTERN:
  * - Toutes les entités (Produit, Client, Commande)
@@ -46,9 +40,10 @@ import java.util.Scanner;
  * STRATEGY PATTERN:
  * - EntreeStockStrategy, SortieStockStrategy
  * 
- * DEPENDENCY INJECTION:
- * - Les repositories sont injectés dans les services
- * - Les services utilisent des interfaces (IRepository)
+ * DEPENDENCY INJECTION via RÉFLEXION:
+ * - Détection automatique des dépendances
+ * - Injection par constructeur
+ * - Résolution récursive
  * 
  * DATA TRANSFER OBJECTS (DTOs):
  * - Séparation entre la couche métier (Entity) et présentation (DTO)
@@ -57,65 +52,14 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
 
-        System.out.println("╔═══════════════════════════════════════════════╗");
-        System.out.println("║   SYSTÈME DE GESTION COMMERCIALE - v2.0      ║");
-        System.out.println("║   Architecture: SOLID + Design Patterns       ║");
-        System.out.println("╚═══════════════════════════════════════════════╝\n");
-
-        // ========================================
-        // ÉTAPE 1: Initialisation de la Database (Singleton)
-        // ========================================
-        Database database = Database.getInstance();
-        System.out.println("✓ Database initialisée (Singleton Pattern)");
-
-        // ========================================
-        // ÉTAPE 2: Création des Repositories via RepositoryFactory
-        // ========================================
-        System.out.println("\n[Factory Pattern] Création des Repositories...");
-
-        IRepository<Produit> produitRepository = RepositoryFactory.createRepository(ProduitRepository.class);
-        System.out.println("  ✓ ProduitRepository créé (Singleton)");
-
-        IRepository<Client> clientRepository = RepositoryFactory.createRepository(ClientRepository.class);
-        System.out.println("  ✓ ClientRepository créé (Singleton)");
-
-        IRepository<Commande> commandeRepository = RepositoryFactory.createRepository(CommandeRepository.class);
-        System.out.println("  ✓ CommandeRepository créé (Singleton)");
-
-        // ========================================
-        // ÉTAPE 3: Création des Services via ServiceFactory avec injection
-        // ========================================
-        System.out.println("\n[Dependency Injection] Création des Services...");
-
-        // Service Stock (sans dépendance)
-        StockService stockService = ServiceFactory.createStockService();
-        System.out.println("  ✓ StockService créé");
-
-        // Service Produit (injection: ProduitRepository)
-        ProduitService produitService = ServiceFactory.createProduitService(produitRepository);
-        System.out.println("  ✓ ProduitService créé avec injection de ProduitRepository");
-
-        // Service Client (injection: ClientRepository)
-        ClientService clientService = ServiceFactory.createClientService(clientRepository);
-        System.out.println("  ✓ ClientService créé avec injection de ClientRepository");
-
-        // Service Commande (injection: CommandeRepository, ProduitRepository,
-        // StockService)
-        CommandeService commandeService = ServiceFactory.createCommandeService(
-                commandeRepository,
-                produitRepository,
-                stockService);
-        System.out.println("  ✓ CommandeService créé avec injection de:");
-        System.out.println("    - CommandeRepository");
-        System.out.println("    - ProduitRepository");
-        System.out.println("    - StockService");
-
-        // ========================================
-        // ÉTAPE 4: Création des Vues (Couche Présentation)
-        // ========================================
-        System.out.println("\n[View Layer] Initialisation des vues...");
-
         Scanner scanner = new Scanner(System.in);
+
+        ReflectionFactory factory = ReflectionFactory.getInstance("factory-config.yml");
+
+        StockService stockService = factory.getBean("IStockService");
+        ProduitService produitService = factory.getBean("IProduitService");
+        ClientService clientService = factory.getBean("IClientService");
+        CommandeService commandeService = factory.getBean("ICommandeService");
 
         ProduitView produitView = new ProduitView(produitService, stockService);
         ClientView clientView = new ClientView(clientService, scanner);
@@ -125,14 +69,7 @@ public class Main {
                 produitService,
                 scanner);
 
-        System.out.println("  ✓ Vues initialisées");
-        System.out.println("\n" + "=".repeat(50));
-        System.out.println("Application prête! Les services utilisent des DTOs.");
-        System.out.println("=".repeat(50));
 
-        // ========================================
-        // BOUCLE PRINCIPALE DE L'APPLICATION
-        // ========================================
         boolean running = true;
 
         while (running) {
@@ -147,7 +84,7 @@ public class Main {
                     running = false;
                     System.out.println("\n╔═══════════════════════════════════════╗");
                     System.out.println("║   Merci d'avoir utilisé le système   ║");
-                    System.out.println("║          Au revoir! 👋                ║");
+                    System.out.println("║          Au revoir!                  ║");
                     System.out.println("╚═══════════════════════════════════════╝");
                 }
                 default -> System.out.println("❌ Choix invalide.");
@@ -158,9 +95,9 @@ public class Main {
     }
 
     private static void afficherMenuPrincipal() {
-        System.out.println("\n" + "═".repeat(50));
+        System.out.println("\n" + "═".repeat(70));
         System.out.println("         SYSTÈME DE GESTION COMMERCIALE");
-        System.out.println("═".repeat(50));
+        System.out.println("═".repeat(70));
         System.out.println("1) 📦 Gestion des Produits");
         System.out.println("2) 👥 Gestion des Clients");
         System.out.println("3) 🛒 Gestion des Commandes");

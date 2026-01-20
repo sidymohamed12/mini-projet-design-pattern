@@ -4,7 +4,7 @@ import com.miniprojet.dto.ProduitDTO;
 import com.miniprojet.exception.ProductNotFoundException;
 import com.miniprojet.model.Produit;
 import com.miniprojet.model.Stock;
-import com.miniprojet.repository.IRepository;
+import com.miniprojet.repository.IProduitRepository;
 import com.miniprojet.service.IProduitService;
 
 import java.util.List;
@@ -17,9 +17,9 @@ import java.util.Optional;
  */
 public class ProduitService implements IProduitService {
 
-    private final IRepository<Produit> repository;
+    private final IProduitRepository repository;
 
-    public ProduitService(IRepository<Produit> repository) {
+    public ProduitService(IProduitRepository repository) {
         this.repository = repository;
     }
 

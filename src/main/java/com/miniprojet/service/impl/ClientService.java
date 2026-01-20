@@ -3,13 +3,12 @@ package com.miniprojet.service.impl;
 import com.miniprojet.dto.ClientDTO;
 import com.miniprojet.exception.ProductNotFoundException;
 import com.miniprojet.model.Client;
-import com.miniprojet.repository.IRepository;
+import com.miniprojet.repository.IClientRepository;
 import com.miniprojet.repository.impl.ClientRepository;
 import com.miniprojet.service.IClientService;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Service métier pour les clients
@@ -18,28 +17,24 @@ import java.util.stream.Collectors;
  */
 public class ClientService implements IClientService {
 
-    private final IRepository<Client> repository;
+    private final IClientRepository repository;
 
-    public ClientService(IRepository<Client> repository) {
+    public ClientService(IClientRepository repository) {
         this.repository = repository;
     }
 
     @Override
     public List<ClientDTO> listAll() {
         return repository.findAll().stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
+                .map(this::toDTO).toList();
     }
 
     @Override
     public ClientDTO create(ClientDTO dto) {
-        // Vérifier si l'email existe déjà
-        if (repository instanceof ClientRepository) {
-            ClientRepository clientRepo = (ClientRepository) repository;
-            Optional<Client> existing = clientRepo.findByEmail(dto.getEmail());
-            if (existing.isPresent()) {
-                throw new IllegalStateException("Un client avec cet email existe déjà");
-            }
+        ClientRepository clientRepo = (ClientRepository) repository;
+        Optional<Client> existing = clientRepo.findByEmail(dto.getEmail());
+        if (existing.isPresent()) {
+            throw new IllegalStateException("Un client avec cet email existe déjà");
         }
 
         Client client = toEntity(dto);
@@ -89,12 +84,9 @@ public class ClientService implements IClientService {
     }
 
     public Optional<ClientDTO> findByEmail(String email) {
-        if (repository instanceof ClientRepository) {
-            ClientRepository clientRepo = (ClientRepository) repository;
-            return clientRepo.findByEmail(email)
-                    .map(this::toDTO);
-        }
-        return Optional.empty();
+        ClientRepository clientRepo = (ClientRepository) repository;
+        return clientRepo.findByEmail(email)
+                .map(this::toDTO);
     }
 
     /**
@@ -127,3 +119,5 @@ public class ClientService implements IClientService {
                 .build();
     }
 }
+
+// interace pour mapper

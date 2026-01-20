@@ -1,6 +1,8 @@
 package com.miniprojet.model;
 
-public class Client implements Cloneable {
+import com.miniprojet.prototype.IPrototype;
+
+public class Client implements IPrototype {
     private int id;
     private String nom;
     private String prenom;
@@ -150,3 +152,9 @@ public class Client implements Cloneable {
         }
     }
 }
+
+// creer une interface pour le prototype
+// interface ClientProtoype extends Cloneable => T extends Cloneable;
+
+// avoir l'habitude de ne pas dependre des dependances externes, creer une
+// couche intermediaire qui se charge de ca pour un couplage faible

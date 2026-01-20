@@ -1,26 +1,20 @@
 package com.miniprojet.repository.impl;
 
-import com.miniprojet.database.Database;
 import com.miniprojet.model.Commande;
 import com.miniprojet.model.StatutCommande;
-import com.miniprojet.repository.IRepository;
+import com.miniprojet.repository.ICommandeRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Singleton Pattern - Repository pour les commandes
  */
-public class CommandeRepository implements IRepository<Commande> {
+public class CommandeRepository implements ICommandeRepository {
 
     private static final CommandeRepository INSTANCE = new CommandeRepository();
-    private final Database database;
-
-    private CommandeRepository() {
-        this.database = Database.getInstance();
-    }
+    private final List<Commande> listCommandes = new ArrayList<>();
 
     public static CommandeRepository getInstance() {
         return INSTANCE;
@@ -28,28 +22,28 @@ public class CommandeRepository implements IRepository<Commande> {
 
     @Override
     public List<Commande> findAll() {
-        return new ArrayList<>(database.getCommandes());
+        return listCommandes;
     }
 
     @Override
     public Optional<Commande> findById(Integer id) {
-        return database.getCommandes().stream()
+        return listCommandes.stream()
                 .filter(c -> c.getId() == id)
                 .findFirst();
     }
 
     @Override
     public Commande save(Commande commande) {
-        int id = database.getCommandes().isEmpty() ? 1 
-                : database.getCommandes().get(database.getCommandes().size() - 1).getId() + 1;
+        int id = listCommandes.isEmpty() ? 1
+                : listCommandes.get(listCommandes.size() - 1).getId() + 1;
         commande.setId(id);
-        database.getCommandes().add(commande);
+        listCommandes.add(commande);
         return commande;
     }
 
     @Override
     public void update(Commande commande) {
-        List<Commande> commandes = database.getCommandes();
+        List<Commande> commandes = listCommandes;
         for (int i = 0; i < commandes.size(); i++) {
             if (commandes.get(i).getId() == commande.getId()) {
                 commandes.set(i, commande);
@@ -61,18 +55,20 @@ public class CommandeRepository implements IRepository<Commande> {
 
     @Override
     public boolean delete(Integer id) {
-        return database.getCommandes().removeIf(c -> c.getId() == id);
+        return listCommandes.removeIf(c -> c.getId() == id);
     }
 
+    @Override
     public List<Commande> findByClientId(int clientId) {
-        return database.getCommandes().stream()
+        return listCommandes.stream()
                 .filter(c -> c.getClient().getId() == clientId)
-                .collect(Collectors.toList());
+                .toList();
     }
 
+    @Override
     public List<Commande> findByStatut(StatutCommande statut) {
-        return database.getCommandes().stream()
+        return listCommandes.stream()
                 .filter(c -> c.getStatut() == statut)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

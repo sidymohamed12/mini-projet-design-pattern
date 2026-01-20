@@ -6,7 +6,8 @@ import com.miniprojet.dto.LigneCommandeDTO;
 import com.miniprojet.dto.ProduitDTO;
 import com.miniprojet.exception.ProductNotFoundException;
 import com.miniprojet.model.*;
-import com.miniprojet.repository.IRepository;
+import com.miniprojet.repository.ICommandeRepository;
+import com.miniprojet.repository.IProduitRepository;
 import com.miniprojet.repository.impl.CommandeRepository;
 import com.miniprojet.service.ICommandeService;
 import com.miniprojet.service.IStockService;
@@ -23,13 +24,13 @@ import java.util.Optional;
  */
 public class CommandeService implements ICommandeService {
 
-    private final IRepository<Commande> commandeRepository;
-    private final IRepository<Produit> produitRepository;
+    private final ICommandeRepository commandeRepository;
+    private final IProduitRepository produitRepository;
     private final IStockService stockService;
 
     public CommandeService(
-            IRepository<Commande> commandeRepository,
-            IRepository<Produit> produitRepository,
+            ICommandeRepository commandeRepository,
+            IProduitRepository produitRepository,
             IStockService stockService) {
         this.commandeRepository = commandeRepository;
         this.produitRepository = produitRepository;
@@ -128,23 +129,17 @@ public class CommandeService implements ICommandeService {
     }
 
     public List<CommandeDTO> findByClientId(int clientId) {
-        if (commandeRepository instanceof CommandeRepository) {
-            CommandeRepository repo = (CommandeRepository) commandeRepository;
-            return repo.findByClientId(clientId).stream()
-                    .map(this::toDTO)
-                    .toList();
-        }
-        return List.of();
+        CommandeRepository repo = (CommandeRepository) commandeRepository;
+        return repo.findByClientId(clientId).stream()
+                .map(this::toDTO)
+                .toList();
     }
 
     public List<CommandeDTO> findByStatut(StatutCommande statut) {
-        if (commandeRepository instanceof CommandeRepository) {
-            CommandeRepository repo = (CommandeRepository) commandeRepository;
-            return repo.findByStatut(statut).stream()
-                    .map(this::toDTO)
-                    .toList();
-        }
-        return List.of();
+        CommandeRepository repo = (CommandeRepository) commandeRepository;
+        return repo.findByStatut(statut).stream()
+                .map(this::toDTO)
+                .toList();
     }
 
     /**
